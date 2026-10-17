@@ -645,6 +645,15 @@ pub(crate) const COMMANDS: &[CommandSpec] = &[
         true,
     ),
     spec(
+        "import-markdown",
+        Category::Export,
+        Visibility::Public,
+        None,
+        true,
+        false,
+        true,
+    ),
+    spec(
         "thumbnail",
         Category::Export,
         Visibility::Public,

@@ -180,6 +180,7 @@ fn main() {
             exit_with(cli::commands::generation::build_from_ingest(&args[2..]))
         }
         Some("scaffold") => exit_with(cli::commands::generation::run_scaffold(&args[2..])),
+        Some("import-markdown") => exit_with(cli::commands::generation::run_import_markdown(&args[2..])),
         Some("hwp5-inventory") => exit_with(rhwp::diagnostics::hwp5_inventory::run(&args[2..])),
         Some("hwp5-inventory-diff") => {
             exit_with(rhwp::diagnostics::hwp5_inventory_diff::run(&args[2..]))

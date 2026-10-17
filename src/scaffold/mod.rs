@@ -10,6 +10,7 @@
 //! `parse_hwpx` 로 되읽어 내용이 그대로 복원됨을 이 모듈의 테스트가 증명한다.
 
 pub mod builder;
+pub mod markdown;
 pub mod schema;
 
 pub use builder::build_scaffold;
