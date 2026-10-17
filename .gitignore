@@ -145,3 +145,7 @@ gym/
 # CI test fixtures: tests/ tree + samples referenced from src tests (runtime File::open).
 !/tests/
 !/samples/
+
+# issue1949 giant-cell authority samples referenced by wasm_api tests (#2400).
+!rhwp-studio/public/samples/issue1949_giant_cell_nested_tables_perf.hwp
+!samples/issue1949_giant_cell_nested_tables_perf.hwpx
