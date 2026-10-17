@@ -1,0 +1,126 @@
+# SVG 골든 스냅샷 — 렌더러 생성물(LF)과 바이트 비교하므로 CRLF 변환 금지 (#1786)
+tests/golden_svg/**/*.svg text eol=lf
+
+# WMF/EMF 골든도 같은 계약이다. `wmf_emf_goldens` 는 엔진이 LF 로 만든 문자열과 파일을
+# 통째로 비교하는데, `core.autocrlf=true` 로 클론한 Windows 체크아웃에서는 파일만 CRLF 가
+# 되어 **내용이 같은데 9건 전부 불일치**로 뜬다(리눅스 CI 는 무증상이라 안 잡힌다).
+tests/fixtures/m09x_wmf_emf/*.golden text eol=lf
+# Cargo의 generated test target 블록은 플랫폼과 무관하게 LF로 체크아웃한다.
+/Cargo.toml text eol=lf
+# Lawful HML corpus — preserve provenance bytes (BOM/CRLF/trailing spaces) and verify by SHA
+samples/hml/*.hml -text -diff
+# Fuzz seeds are raw parser inputs. CRLF/smudge would change coverage hashes.
+fuzz/corpus/** -text -diff
+# POC TSV는 마지막 빈 열을 tab으로 표현한다. 이 필드는 데이터 스키마의 일부이므로
+# trailing-whitespace 오류로 취급하지 않는다.
+output/poc/**/*.tsv -whitespace
+# [#5795] 스킬 마크다운은 계약이 바이트로 검사된다 (frontmatter 를 개행까지 포함해 본다).
+# 체크아웃 개행이 플랫폼마다 갈리면 같은 커밋이 Windows 에서만 빨개진다.
+.claude/skills/**/*.md text eol=lf
+.agents/skills/**/*.md text eol=lf
+# Agent skill fixture TSV/CSV는 끝 빈 열 또는 CRLF 입력 자체가 계약이다.
+.claude/skills/rhwp-fde/fixtures/tsv/*.tsv -whitespace
+.claude/skills/rhwp-table-exchange/fixtures/csv/table0_control_lf.csv -whitespace
+.claude/skills/rhwp-visual-regression/fixtures/tsv/*.tsv -whitespace
+.claude/skills/rhwp-visual-regression/references/_gen_pack.py -whitespace
+# 이 파일은 재현용 unified diff 자체다. 내부 hunk의 공백 문맥은 패치 문법이므로
+# Git의 일반 source-whitespace 검사를 적용하지 않는다.
+mydocs/report/task3798/trimcap_experiment.patch -whitespace
+# [#4659] 운동장 리더보드 — 해시 정합이 생명인 파일들. CRLF 변환은 원장에
+# 박힌 줄-바이트 해시를 깨뜨려 검증을 실패시킨다. LF 고정(-text).
+gym/leaderboard/**/*.json    -text
+gym/leaderboard/**/*.ndjson  -text
+gym/leaderboard/*.ndjson     -text
+# [#5447] 한컴 판정 자산 — 한컴 2022 가 실제로 연 바이트이고, 그 SHA-256 이
+# samples/issue5447/MANIFEST.json 에 박혀 있다. 자동 감지에 맡기지 않고 못박는다.
+samples/issue5447/*.hwp   -text -diff
+samples/issue5447/*.hwpx  -text -diff
+pdf/issue5447/*.pdf       -text -diff
+# #5057/#6202 회귀 입력은 한컴 원본 바이트다. 텍스트 변환이나 diff 정규화가
+# manifest의 SHA-256과 parser 재현성을 바꾸면 안 된다.
+samples/issue5057/*.hwp -text -diff
+samples/issue6202/*.hwp -text -diff
+# Issue #5941 canonical HWP fixture
+samples/issue5941/1480000-201900698-native-neartop-reset.hwp -text -diff
+# #6697/#6718 회귀 입력은 원본 한컴 바이트다. 텍스트 변환이나 diff 정규화가
+# manifest의 SHA-256과 renderer 재현성을 바꾸면 안 된다.
+samples/issue6697/*.hwpx -text -diff
+samples/issue6718/*.hwp -text -diff
+# PR #7163 전체 사진 시각 증적: 원본 ZIP 바이트 보존
+tests/fixtures/issue_7158/*.hwpx -text -diff
+# Preserve the original bytes of the #6756/#6764 regression inputs.
+samples/issue6756/*.hwp -text -diff
+samples/issue6764/*.hwp -text -diff
+# PR #6796: original HWP bytes
+samples/issue6782/1480000-201900042-chemical-product-labeling-study.hwp -text -diff
+# #7078/#7091 검토의 새 반례·변환 산출물은 원본 바이트를 보존한다.
+# PDF의 xref CRLF/공백과 압축 stream은 source whitespace가 아니다.
+tests/fixtures/issue_7077/*.hwpx -text -diff
+tests/fixtures/issue_7091/*.hwp -text -diff
+tests/fixtures/issue_7091/*.hwpx -text -diff
+pdf/pr7078-*.pdf -text -diff
+pdf/pr7091-sample11-before-2020.pdf -text -diff
+tests/fixtures/issue_7130/*.wmf -text -diff
+samples/issue6929/*.hwp -text -diff
+# PR #7165/#7168 독립 한컴 비교 입력·출력의 바이트를 보존한다.
+tests/fixtures/stored_inline_table_suffix/*.hwpx -text -diff
+tests/fixtures/stored_column_width_quantization/*.hwpx -text -diff
+pdf/two_digits-2020.pdf -text -diff
+pdf/stored-column-header-2020.pdf -text -diff
+tests/fixtures/stored_inline_table_suffix/*.hwp -text -diff
+tests/fixtures/stored_column_width_quantization/*.hwp -text -diff
+pdf/two-digits-wrap-2020.pdf -text -diff
+pdf/two-digits-break-2020.pdf -text -diff
+pdf/two-digits-table-wrap-2020.pdf -text -diff
+# Issue #7333 stored input and visual references are binary evidence.
+samples/issue7333/*.hwp -text -diff
+pdf/issue7333/*.pdf -text -diff
+/mydocs/pr/assets/issue7445/1480000-201900698-native-neartop-reset.hwp filter=lfs diff=lfs merge=lfs -text
+/mydocs/pr/assets/issue7445/1613000-202200037-air-traffic-controller-cbta.hwp filter=lfs diff=lfs merge=lfs -text
+/mydocs/pr/assets/pr_2165/hwp3-sample16-hwp5-2020.pdf filter=lfs diff=lfs merge=lfs -text
+/pdf/2025[[:space:]]행정업무운영[[:space:]]편람(최종)-hwp-kopub-2020.pdf filter=lfs diff=lfs merge=lfs -text
+/pdf/2025[[:space:]]행정업무운영[[:space:]]편람(최종)-hwpx-kopub-2020.pdf filter=lfs diff=lfs merge=lfs -text
+/pdf/hwp3-sample11-hwp-2020.pdf filter=lfs diff=lfs merge=lfs -text
+/pdf/hwp3-sample11-hwpx-hwpx-2020.pdf filter=lfs diff=lfs merge=lfs -text
+/pdf/hwp3-sample16-hwp5-2010-2020.pdf filter=lfs diff=lfs merge=lfs -text
+/pdf/hwp3-sample16-hwp5-2018-2020.pdf filter=lfs diff=lfs merge=lfs -text
+/pdf/hwp3-sample16-hwp5-2020.pdf filter=lfs diff=lfs merge=lfs -text
+/pdf/hwp3-sample16-hwp5-2024-2020.pdf filter=lfs diff=lfs merge=lfs -text
+/pdf/hwp3/hwp3-sample11-2020.pdf filter=lfs diff=lfs merge=lfs -text
+/pdf/issue1949_split_1x2_current_reflow_20260810_2020.pdf filter=lfs diff=lfs merge=lfs -text
+/pdf/issue2006/1790387_prep_final_report-2022.pdf filter=lfs diff=lfs merge=lfs -text
+/pdf/issue2006/1790387_prep_final_report-2024.pdf filter=lfs diff=lfs merge=lfs -text
+/pdf/issue2006/1790387_prep_final_report-hwp2020-20260814.pdf filter=lfs diff=lfs merge=lfs -text
+/pdf/issue2559/1341000_research_report_footnotes-2020-print.pdf filter=lfs diff=lfs merge=lfs -text
+/pdf/issue2559/1341000_research_report_footnotes-2020.pdf filter=lfs diff=lfs merge=lfs -text
+/pdf/issue3820/2025-administration-final-hwp-hwp2020-20260814.pdf filter=lfs diff=lfs merge=lfs -text
+/pdf/issue3820/2025-administration-final-hwpx-hwp2020-20260814.pdf filter=lfs diff=lfs merge=lfs -text
+/pdf/issue7333/aaaaaa-rhwp-stage11.pdf filter=lfs diff=lfs merge=lfs -text
+/pdf/issue7333/aaaaaa-rhwp-v0.8.6.pdf filter=lfs diff=lfs merge=lfs -text
+/pdf/issue7406/pr7406-native-review-001-035-9e7518243.pdf filter=lfs diff=lfs merge=lfs -text
+/pdf/issue7406/pr7406-native-review-036-070-9e7518243.pdf filter=lfs diff=lfs merge=lfs -text
+/pdf/issue7406/pr7406-native-review-071-105-9e7518243.pdf filter=lfs diff=lfs merge=lfs -text
+/pdf/issue7406/pr7406-native-review-106-140-9e7518243.pdf filter=lfs diff=lfs merge=lfs -text
+/pdf/pr-review-planet6897-20260813/hwp3-sample10-hwp5-lineseg-normalized-2020.pdf filter=lfs diff=lfs merge=lfs -text
+/pdf/pr7091-sample11-before-2020.pdf filter=lfs diff=lfs merge=lfs -text
+/pdf/pr7268/hwp3-sample10-hwp5-p001-300-2024.pdf filter=lfs diff=lfs merge=lfs -text
+/pdf/pr7268/hwp3-sample10-hwp5-p301-600-2024.pdf filter=lfs diff=lfs merge=lfs -text
+/pdf/pr7268/hwp3-sample10-hwp5-p601-763-2024.pdf filter=lfs diff=lfs merge=lfs -text
+/pdf/pr_5813/hancom2020/2025[[:space:]]행정업무운영[[:space:]]편람(최종)-2020.pdf filter=lfs diff=lfs merge=lfs -text
+/pdf/stage242-hwp2020-page-count/2025[[:space:]]행정업무운영[[:space:]]편람(최종)-2020.pdf filter=lfs diff=lfs merge=lfs -text
+/pdf/stage242-hwp2020-page-count/hwpx/2025[[:space:]]행정업무운영[[:space:]]편람(최종)-2020.pdf filter=lfs diff=lfs merge=lfs -text
+/pdf/task_m100_3820_stage86_wasm_boundary_oracle/issue1949_cell_p5_append_56-2020.pdf filter=lfs diff=lfs merge=lfs -text
+/pdf/task_m100_3820_stage86_wasm_boundary_oracle/issue1949_cell_p5_append_61-2020.pdf filter=lfs diff=lfs merge=lfs -text
+/samples/2025[[:space:]]행정업무운영[[:space:]]편람(최종).hwp filter=lfs diff=lfs merge=lfs -text
+/samples/2025[[:space:]]행정업무운영[[:space:]]편람(최종).hwpx filter=lfs diff=lfs merge=lfs -text
+/samples/exam_kor.hwp filter=lfs diff=lfs merge=lfs -text
+/samples/issue1921/59043_regulatory_analysis.hwp filter=lfs diff=lfs merge=lfs -text
+/samples/issue2006/1790387_prep_final_report.hwpx filter=lfs diff=lfs merge=lfs -text
+/samples/issue5941/1480000-201900698-native-neartop-reset.hwp filter=lfs diff=lfs merge=lfs -text
+/samples/issue6764/1613000-202200037-air-traffic-controller-cbta.hwp filter=lfs diff=lfs merge=lfs -text
+/samples/rnote/연구노트(공학).hwp filter=lfs diff=lfs merge=lfs -text
+/samples/rnote/연구노트(생물).hwp filter=lfs diff=lfs merge=lfs -text
+/samples/rnote/연구노트(수학).hwp filter=lfs diff=lfs merge=lfs -text
+/samples/rnote/연구노트(지구과학).hwp filter=lfs diff=lfs merge=lfs -text
+/samples/rnote/연구노트(화학).hwp filter=lfs diff=lfs merge=lfs -text
+/tests/fixtures/issue_7158/156492236-regulatory-sandbox-full.hwpx filter=lfs diff=lfs merge=lfs -text
