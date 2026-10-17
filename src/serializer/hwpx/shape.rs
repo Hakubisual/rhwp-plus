@@ -895,7 +895,20 @@ fn write_win_brush<W: Write>(
     solid: &SolidFill,
     alpha: u8,
 ) -> Result<(), SerializeError> {
-    let face = color_to_hex(solid.background_color);
+    // [#rhwp-plus] HWP5 의 solid 채움(FillType::Solid) 배경색은 한컴이 흰색을
+    // 0xFFFFFFFF(COLORREF 센티넬과 같은 값)로 기록한다(공공 별지서식 실측:
+    // 43-lawform bf2 bg=FF FF FF FF, 셀 흰 배경). color_to_hex 는 그 값을
+    // HWPX faceColor="none" 센티넬로 바꿔 렌더러가 셀 배경을 그리지 않게 한다 —
+    // 코퍼스 41·43·44·45의 흰 사각형 소실 원인. 이 함수는 Solid arm 전용이라
+    // 흰색을 #FFFFFF 로 내보낸다. HWPX 원본의 faceColor="none" 보존 계약
+    // (header.rs Finding 12)은 write_fill_brush 의 FillType::None 경로에서
+    // 별도 방출로 유지된다 — 왕복 정직성은 그대로다.
+    let face = if solid.background_color == 0xFFFF_FFFF {
+        // HWP5 출처 solid 채움(Write_win_brush 의 Solid arm 호출) — 흰색으로 내보낸다.
+        "#FFFFFF".to_string()
+    } else {
+        color_to_hex(solid.background_color)
+    };
     let hatch = color_to_hex(solid.pattern_color);
     let alpha = fill_alpha_str(alpha);
     start_tag(w, "hc:fillBrush")?;
@@ -940,7 +953,22 @@ pub(crate) fn write_fill_brush<W: Write>(
         // faceColor="none"+무늬없음 으로 빈 채우기였던 경우) winBrush 를 그대로
         // 복원한다. solid 가 없으면 원본에 fillBrush 가 없었던 것이므로 미방출.
         FillType::None => match &fill.solid {
-            Some(solid) => write_win_brush(w, solid, fill.alpha),
+            // [#rhwp-plus] 보존 계약(HWPX 원본 faceColor="none")이라 이 경로만
+            // 센티넬 복원을 유지한다 — write_win_brush 의 HWP5 흰색 매핑을 타지 않게
+            // 별도 방출로 둔다(Finding 12 계약 유지).
+            Some(solid) => {
+                start_tag(w, "hc:fillBrush")?;
+                empty_tag(
+                    w,
+                    "hc:winBrush",
+                    &[
+                        ("faceColor", color_to_hex(solid.background_color).as_str()),
+                        ("hatchColor", color_to_hex(solid.pattern_color).as_str()),
+                        ("alpha", fill_alpha_str(fill.alpha).as_str()),
+                    ],
+                )?;
+                end_tag(w, "hc:fillBrush")
+            }
             None => Ok(()),
         },
         FillType::Solid => {
