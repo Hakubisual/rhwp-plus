@@ -141,3 +141,7 @@ gym/
 !tests/fixtures/fonts/RHWPExactFaceSmoke.ttc
 !tests/fixtures/fonts/RHWPHostFixture-Regular.ttf
 !tests/fixtures/fonts/RHWPHostFixture.ttc
+
+# CI test fixtures: tests/ tree + samples referenced from src tests (runtime File::open).
+!/tests/
+!/samples/
