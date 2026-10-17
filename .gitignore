@@ -128,3 +128,16 @@ pdf/
 samples/
 /tests/
 gym/
+# CI needs the fixtures referenced by include_str!/include_bytes! in src tests.
+!samples/3-09월_교육_통합_2022.hwp
+!samples/hml/formatting_table.hml
+!samples/hwp3-sample16-hwp5.hwp
+!samples/hwpx/aift.hwpx
+!samples/hwpx/ref/ref_empty.hwpx
+!samples/render-p35-font-native-bitmap.hwpx
+!tests/fixtures/
+!tests/fixtures/fonts/
+!tests/fixtures/fonts/RHWPBitmapSvgGlyphSmoke.ttf
+!tests/fixtures/fonts/RHWPExactFaceSmoke.ttc
+!tests/fixtures/fonts/RHWPHostFixture-Regular.ttf
+!tests/fixtures/fonts/RHWPHostFixture.ttc
