@@ -1,3 +1,7 @@
+> **rhwp-plus** - [edwardkim/rhwp](https://github.com/edwardkim/rhwp) 를 바탕으로 한 확장판입니다 (upstream 1a76570e 기준, MIT).
+> 추가한 것: Markdown 가져오기(`rhwp import-markdown`), MCP 도구 `hwp_import_markdown`, HWPX 표 직렬화 보완, CI(cargo test + wasm32).
+> 원작 저작권과 라이선스는 [LICENSE](LICENSE) 그대로이며, 아래 내용은 원본 README 입니다.
+
 <p align="center">
   <img src="assets/logo/logo-256.png" alt="rhwp logo" width="128" />
 </p>
