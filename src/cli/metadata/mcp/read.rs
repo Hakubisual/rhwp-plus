@@ -225,6 +225,21 @@ pub(super) fn extend(tools: &mut Vec<serde_json::Value>) {
             &["schemaVersion", "source", "format", "backend", "output", "bytes", "pageCount", "renderedCount"],
         ),
         tool(
+            "hwp_import_markdown",
+            "Markdown 문서를 유효한 HWPX 로 변환 저장한다. ATX 제목(#), GFM 파이프 표, 목록·인용·코드펜스를 지원하고 인라인 강조는 평문으로 병합한다. rhwp-plus 의 생성 축 확장이다.",
+            serde_json::json!({
+                "type": "object",
+                "properties": {
+                    "path": { "type": "string", "description": "입력 Markdown 파일 경로" },
+                    "output": { "type": "string", "description": "출력 HWPX 파일 경로" }
+                },
+                "required": ["path", "output"],
+            }),
+            "import-markdown",
+            serde_json::json!(["import-markdown", "{path}", "-o", "{output}", "--json"]),
+            &["schemaVersion", "source", "output", "format", "bytes", "blockCount", "paragraphCount", "tableCount"],
+        ),
+        tool(
             "hwp_export_markdown",
             "문서를 페이지별 Markdown(이미지 자산 포함)으로 추출하고 산출물 매니페스트를 돌려준다. LLM 파이프라인·정적 사이트 입력으로 쓴다.",
             serde_json::json!({
