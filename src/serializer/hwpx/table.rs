@@ -1269,6 +1269,48 @@ mod tests {
     }
 
     #[test]
+    fn cell_paragraph_emits_group_shape_children() {
+        // 코퍼스 41·43·44·45-lawform 재현: 누름틁 셀 안 묶음 개체(dloc) 내 사각형들이
+        // HWP->HWPX 저장에서 소실한다(원본 렌더 rect 6 → 저장본 0). 셀 문단의
+        // Shape::Group(자식 Rectangle)이 hp:container+hp:rect 로 방출되어야 함.
+        use crate::model::shape::{CommonObjAttr, GroupShape, RectangleShape, ShapeComponentAttr, ShapeObject};
+        use crate::parser::tags;
+        let mut rect = RectangleShape {
+            common: CommonObjAttr::default(),
+            drawing: crate::model::shape::DrawingObjAttr::default(),
+            round_rate: 0,
+            x_coords: [0, 1000, 1000, 0],
+            y_coords: [0, 0, 500, 500],
+        };
+        rect.drawing.shape_attr.ctrl_id = tags::SHAPE_RECT_ID;
+        let mut group = GroupShape {
+            common: CommonObjAttr::default(),
+            shape_attr: ShapeComponentAttr::default(),
+            children: vec![ShapeObject::Rectangle(rect)],
+            caption: None,
+        };
+        group.shape_attr.ctrl_id = tags::SHAPE_CONTAINER_ID;
+        let mut t = empty_table(1, 1);
+        {
+            let para = &mut t.cells[0].paragraphs[0];
+            para.char_count = 9;
+            para.controls
+                .push(crate::model::control::Control::Shape(Box::new(
+                    crate::model::shape::ShapeObject::Group(group),
+                )));
+        }
+        let xml = serialize(&t);
+        assert!(
+            xml.contains("<hp:container"),
+            "셀 문단의 묶음 개체가 hp:container 로 방출되어야 함: {xml}"
+        );
+        assert!(
+            xml.contains("<hp:rect "),
+            "묶음 내 사각형이 hp:rect 로 방출되어야 함: {xml}"
+        );
+    }
+
+    #[test]
     fn task1379_cell_paragraph_emits_picture_control() {
         // 셀 문단의 Picture 컨트롤이 hp:pic 으로 방출되어야 함 (#1379 2단계).
         let mut t = empty_table(1, 1);
